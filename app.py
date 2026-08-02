@@ -98,6 +98,7 @@ if question:
                 response = ask(chain, question)
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
+                st.session_state.messages.pop()
                 st.stop()
         render_response(response)
 

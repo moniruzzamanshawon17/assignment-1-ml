@@ -1,13 +1,3 @@
-"""
-schemas.py
-----------
-Pydantic models that define the structured output contract for the chatbot.
-
-Satisfies FR-3 (Pydantic Structured Output). Every LLM call in this project is
-bound to one of these schemas, so the model is forced to return validated,
-typed data instead of free-form text.
-"""
-
 from enum import Enum
 from typing import List
 

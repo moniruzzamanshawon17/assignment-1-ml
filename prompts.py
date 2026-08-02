@@ -1,13 +1,3 @@
-"""
-prompts.py
-----------
-All prompt construction lives here.
-
-Satisfies FR-2 (PromptTemplate): every prompt is a `PromptTemplate` object with
-declared input variables. No prompt text is ever written inline inside an
-`invoke()` call -- chains reference these constants by name.
-"""
-
 from langchain_core.prompts import PromptTemplate
 
 # ---------------------------------------------------------------------------

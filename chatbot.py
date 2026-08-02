@@ -1,12 +1,3 @@
-"""
-chatbot.py
-----------
-Builds the full LCEL pipeline:
-
-    question -> classifier -> RunnableBranch -> RunnableParallel -> ChatResponse
-
-Satisfies FR-4 (RunnableBranch) and FR-5 (RunnableParallel).
-"""
 
 import os
 
