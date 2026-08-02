@@ -31,6 +31,7 @@ from schemas import Answer, Category, ChatResponse, Insights, QuestionRoute
 load_dotenv()
 
 DEFAULT_MODEL = "llama-3.3-70b-versatile"
+MAX_ATTEMPTS = 3
 
 
 def get_llm(temperature: float = 0.3) -> ChatGroq:
@@ -75,8 +76,21 @@ def build_chatbot():
     """Assemble and return the complete chain."""
     llm = get_llm()
 
+    # Tool-calling occasionally returns malformed JSON when an answer contains
+    # code or special characters. Retrying re-rolls the generation, which
+    # resolves it in almost every case.
+    route_llm = llm.with_structured_output(QuestionRoute).with_retry(
+        stop_after_attempt=MAX_ATTEMPTS
+    )
+    answer_llm = llm.with_structured_output(Answer).with_retry(
+        stop_after_attempt=MAX_ATTEMPTS
+    )
+    insights_llm = llm.with_structured_output(Insights).with_retry(
+        stop_after_attempt=MAX_ATTEMPTS
+    )
+
     # --- Step 1: classify the question so the branch has something to test ---
-    classifier_chain = CLASSIFIER_PROMPT | llm.with_structured_output(QuestionRoute)
+    classifier_chain = CLASSIFIER_PROMPT | route_llm
 
     classify_stage = RunnableParallel(
         question=RunnableLambda(lambda x: x["question"]),
@@ -90,9 +104,9 @@ def build_chatbot():
     )
 
     # --- Step 2: three specialist chains, one per route (FR-4) ---
-    programming_chain = only_question | PROGRAMMING_PROMPT | llm.with_structured_output(Answer)
-    math_chain = only_question | MATH_PROMPT | llm.with_structured_output(Answer)
-    general_chain = only_question | GENERAL_PROMPT | llm.with_structured_output(Answer)
+    programming_chain = only_question | PROGRAMMING_PROMPT | answer_llm
+    math_chain = only_question | MATH_PROMPT | answer_llm
+    general_chain = only_question | GENERAL_PROMPT | answer_llm
 
     answer_branch = RunnableBranch(
         (lambda x: x["category"] == Category.PROGRAMMING, programming_chain),
@@ -101,7 +115,7 @@ def build_chatbot():
     )
 
     # --- Step 3: run the answer and the analysis at the same time (FR-5) ---
-    insights_chain = only_question | INSIGHTS_PROMPT | llm.with_structured_output(Insights)
+    insights_chain = only_question | INSIGHTS_PROMPT | insights_llm
 
     parallel_stage = RunnableParallel(
         answer=answer_branch,

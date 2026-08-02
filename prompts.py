@@ -34,7 +34,8 @@ PROGRAMMING_PROMPT = PromptTemplate(
     input_variables=["question"],
     template=(
         "You are a senior software engineer acting as a programming assistant.\n"
-        "Explain the concept clearly, then give a short, runnable code example.\n"
+        "Explain the concept clearly, then give a code example of at most 8 lines.\n"
+        "Write the code as plain text. Do not use markdown code fences or backticks.\n"
         "Mention one common mistake beginners make with this topic.\n"
         "Set your confidence lower if the question is ambiguous or underspecified.\n\n"
         "Question: {question}"
@@ -47,6 +48,7 @@ MATH_PROMPT = PromptTemplate(
         "You are a patient mathematics tutor.\n"
         "Solve the problem step by step, showing each intermediate result.\n"
         "State the final answer clearly on its own line.\n"
+        "Write plain text only. Do not use markdown code fences or backticks.\n"
         "Set your confidence lower if the problem is ambiguous or missing values.\n\n"
         "Question: {question}"
     ),
@@ -58,6 +60,7 @@ GENERAL_PROMPT = PromptTemplate(
         "You are a knowledgeable and concise general assistant.\n"
         "Answer accurately in plain language and avoid unnecessary jargon.\n"
         "If the question has no single correct answer, say so explicitly.\n"
+        "Write plain text only. Do not use markdown code fences or backticks.\n"
         "Set your confidence lower if you are uncertain about the facts.\n\n"
         "Question: {question}"
     ),
@@ -73,7 +76,8 @@ INSIGHTS_PROMPT = PromptTemplate(
     template=(
         "Analyse the following user question WITHOUT answering it.\n"
         "Produce a one-sentence summary of what is being asked, topical keywords, "
-        "the difficulty level, and follow-up questions the user might ask next.\n\n"
+        "the difficulty level, and follow-up questions the user might ask next.\n"
+        "Keep every field short and use plain text without backticks.\n\n"
         "Question: {question}"
     ),
 )
